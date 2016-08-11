@@ -133,19 +133,28 @@ function HTTPTransportClient (config) {
       res.on('data', function (data) {
         response += data;
       });
+      let hasCalledCallback = false;
+      function finish (err, data) {
+        if (hasCalledCallback) {
+          // do nothing
+          return;
+        }
+        hasCalledCallback = true;
+        return callback(err, data);
+      }
       res.on('end', function () {
         try {
           if (!response || response === 'undefined') {
-            return callback();
+            return finish();
           }
           var parsedJSON = JSON.parse(response);
           if (parsedJSON.$htTransportError) {
-            return callback(parsedJSON.$htTransportError);
+            return finish(parsedJSON.$htTransportError);
           }
-          return callback(null, parsedJSON);
+          return finish(null, parsedJSON);
         } catch (e) {
           // Return response here anyway
-          return callback(utils.formatError(response).error);
+          return finish(utils.formatError(response).error);
         }
       });
     });
