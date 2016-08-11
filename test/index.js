@@ -459,5 +459,39 @@ describe('HTTP Transport', function () {
         });
       });
     });
+    it('should not call callback twice if callee throws from callback function', function (done) {
+      this.timeout(1000);
+      let app = express();
+      app.use(bodyParser.json());
+      app.post('/ht', function (req, res) {
+        res.json({
+          data: req.body
+        });
+      });
+
+      let called = 0;
+
+      let client = new transport.Client();
+
+      let _server = app.listen(port, host, function () {
+        setTimeout(function () {
+          if (called > 1) {
+            throw new Error('client callback called more than once');
+          }
+          return _server.close(done);
+        }, 800);
+        client.call('method', {
+          hello: 'world'
+        }, function (err, response) {
+          if (err) {
+            // ignore here
+          }
+          called++;
+          if (called < 2) {
+            throw new Error('unwind stack');
+          }
+        });
+      });
+    });
   });
 });
