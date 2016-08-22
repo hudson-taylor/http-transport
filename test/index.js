@@ -1,6 +1,7 @@
 /*global describe, it, before */
 import assert from 'assert';
 import https from 'https';
+import domain from 'domain';
 
 import openport from 'openport';
 import request from 'request';
@@ -456,6 +457,38 @@ describe('HTTP Transport', function () {
           assert.ifError(err);
           assert.strictEqual(response, undefined);
           _server.close(done);
+        });
+      });
+    });
+    it('should not call callback twice if callee throws from callback function', function (done) {
+      this.timeout(1000);
+      let app = express();
+      app.use(bodyParser.json());
+      app.post('/ht', function (req, res) {
+        res.json({
+          data: req.body
+        });
+      });
+
+      let d = domain.create();
+
+      let client = new transport.Client();
+
+      let _server = app.listen(port, host, function () {
+        d.on('error', function (err) {
+          assert.equal(err.message, 'unwind');
+          return _server.close(done);
+        });
+        d.run(function () {
+          client.call('method', {
+            hello: 'world'
+          }, function (err, response) {
+            if (err) {
+              assert.equal(err, undefined, 'err not undefined, stack has unwinded back into Transport');
+            }
+
+            throw new Error('unwind');
+          });
         });
       });
     });

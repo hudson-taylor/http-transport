@@ -139,14 +139,14 @@ function HTTPTransportClient (config) {
             return callback();
           }
           var parsedJSON = JSON.parse(response);
-          if (parsedJSON.$htTransportError) {
-            return callback(parsedJSON.$htTransportError);
-          }
-          return callback(null, parsedJSON);
         } catch (e) {
           // Return response here anyway
           return callback(utils.formatError(response).error);
         }
+        if (parsedJSON.$htTransportError) {
+          return callback(parsedJSON.$htTransportError);
+        }
+        return callback(null, parsedJSON);
       });
     });
 
