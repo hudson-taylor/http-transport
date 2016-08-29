@@ -352,6 +352,33 @@ describe('HTTP Transport', function () {
       });
     });
 
+    it('should be able to call method with non ascii characters', function (done) {
+      let _method = 'hello';
+      let _data = { thai_chars: 'วรรณยุต' };
+
+      let app = express();
+      app.use(bodyParser.json());
+      app.post('/ht', function (req, res) {
+        let _req$body = req.body;
+        let method = _req$body.method;
+        let args = _req$body.args;
+
+        assert.equal(method, _method);
+        assert.deepEqual(args, _data);
+        res.json(_data);
+      });
+
+      let client = new transport.Client();
+
+      let _server = app.listen(port, host, function () {
+        client.call(_method, _data, function (err, response) {
+          assert.ifError(err);
+          assert.deepEqual(response, _data);
+          _server.close(done);
+        });
+      });
+    });
+
     it('should successfully return error', function (done) {
       let _method = 'hello';
       let _error = 'therewasanerror';
