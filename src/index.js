@@ -143,7 +143,7 @@ function HTTPTransportClient (config) {
           // Return response here anyway
           return callback(utils.formatError(response).error);
         }
-        if (parsedJSON.$htTransportError) {
+        if (parsedJSON && parsedJSON.$htTransportError) {
           return callback(parsedJSON.$htTransportError);
         }
         return callback(null, parsedJSON);
