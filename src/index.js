@@ -121,6 +121,8 @@ function HTTPTransportClient (config) {
       port: this.config.port,
       path: this.config.path,
       method: 'POST',
+      agent: this.config.agent,
+      timeout: this.config.timeout,
       headers: {
         'Content-Type': 'application/json',
         'Content-Length': new Buffer(json).length
