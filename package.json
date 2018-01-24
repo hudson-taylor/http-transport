@@ -1,6 +1,6 @@
 {
   "name": "ht-http-transport",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Hudson-Taylor HTTP transport",
   "main": "lib/index.js",
   "scripts": {
