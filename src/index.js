@@ -111,7 +111,7 @@ function HTTPTransportClient (config) {
     done();
   };
 
-  _HTTPTransportClient.prototype.call = function (method, data, callback) {
+  _HTTPTransportClient.prototype.call = function (method, data, callback, opts = {}) {
     // Finally, all Client instances require a call method.
     // This is the method that actually communicates with
     // the 'server'.
@@ -125,7 +125,8 @@ function HTTPTransportClient (config) {
       timeout: this.config.timeout,
       headers: {
         'Content-Type': 'application/json',
-        'Content-Length': new Buffer(json).length
+        'Content-Length': new Buffer(json).length,
+        ...opts.headers
       }
     };
 

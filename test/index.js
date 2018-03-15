@@ -487,6 +487,30 @@ describe('HTTP Transport', function () {
         });
       });
     });
+
+    it('should be able to pass custom headers to a call', function (done) {
+      let app = express();
+      app.use(bodyParser.json());
+      app.post('/ht', function (req, res) {
+        res.json(req.headers);
+      });
+
+      let client = new transport.Client();
+
+      let _server = app.listen(port, host, function (err) {
+        assert.ifError(err);
+        client.call('method', {}, function (err, response) {
+          assert.ifError(err);
+          assert.equal(response.mycustomheader, 42);
+          _server.close(done);
+        }, {
+          headers: {
+            mycustomheader: 42
+          }
+        });
+      });
+    });
+
     it('should not call callback twice if callee throws from callback function', function (done) {
       this.timeout(1000);
       let app = express();
