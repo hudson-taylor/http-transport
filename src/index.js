@@ -125,7 +125,7 @@ function HTTPTransportClient (config) {
       timeout: this.config.timeout,
       headers: {
         'Content-Type': 'application/json',
-        'Content-Length': new Buffer(json).length,
+        'Content-Length': Buffer.from(json).length,
         ...opts.headers
       }
     };
