@@ -30,7 +30,7 @@
     "babel-register": "^6.5.2",
     "mocha": "^5.2.0",
     "openport": "0.0.4",
-    "semistandard": "^9.2.1"
+    "semistandard": "^10.0.0"
   },
   "dependencies": {
     "body-parser": "^1.18.2",
