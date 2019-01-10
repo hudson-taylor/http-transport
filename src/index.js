@@ -122,7 +122,6 @@ function HTTPTransportClient (config) {
       path: this.config.path,
       method: 'POST',
       agent: this.config.agent,
-      timeout: this.config.timeout,
       headers: {
         'Content-Type': 'application/json',
         'Content-Length': Buffer.from(json).length,
@@ -131,6 +130,9 @@ function HTTPTransportClient (config) {
     };
 
     let req = (this.config.ssl ? https : http).request(options, function (res) {
+      if (req.aborted) {
+        return;
+      }
       res.setEncoding('utf8');
       let response = '';
       res.on('data', function (data) {
@@ -154,8 +156,24 @@ function HTTPTransportClient (config) {
     });
 
     req.on('error', function (err) {
+      if (req.aborted) {
+        return;
+      }
       return callback(utils.formatError(err).error);
     });
+    if (this.config.timeout) {
+      const timeout = this.config.timeout;
+      const timer = setTimeout(function handleRequestTimeout () {
+        req.abort();
+        callback(utils.formatError(new Error(`Timeout of ${timeout}ms exceeded`)).error);
+      }, timeout);
+
+      const originalCallback = callback;
+      callback = function (err, res) {
+        clearTimeout(timer);
+        originalCallback(err, res);
+      };
+    }
 
     req.write(json);
     req.end();
