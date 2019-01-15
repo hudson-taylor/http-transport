@@ -415,6 +415,51 @@ describe('HTTP Transport', function () {
       });
     });
 
+    it('should timeout if server does not respond in time', function (done) {
+      this.timeout(2000);
+      const app = express();
+      app.post('/ht', function (req, res) {
+      });
+
+      const transport = new HTTP({
+        port,
+        host,
+        timeout: 1000
+      });
+      const client = new transport.Client();
+
+      const _app = app.listen(port, host, function () {
+        client.call('', {}, function (err) {
+          assert.equal(err, 'Timeout of 1000ms exceeded');
+          _app.close(done);
+        });
+      });
+    });
+
+    it('should not timeout when server responds in time', function (done) {
+      this.timeout(2000);
+      let _response = { something: 'world' };
+      const app = express();
+      app.post('/ht', function (req, res) {
+        res.send(_response);
+      });
+
+      const transport = new HTTP({
+        port,
+        host,
+        timeout: 1000
+      });
+      const client = new transport.Client();
+
+      const _app = app.listen(port, host, function () {
+        client.call('', {}, function (err, response) {
+          assert.equal(err, undefined);
+          assert.notStrictEqual(response, _response);
+          _app.close(done);
+        });
+      });
+    });
+
     it('should enable HTTPS if SSL options are specified', function (done) {
       let _method = 'hello';
       let _data = { something: 'world' };
